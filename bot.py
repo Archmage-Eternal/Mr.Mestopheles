@@ -12,6 +12,9 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 bot = commands.Bot(command_prefix='!')
 # Managerial Functions.
 
+@bot.event
+async def on_guild_join(self, guild):
+    print(guild.name)
 
 @bot.command(name='silence', help='Mutes everyone in the current voice channel.')
 async def vcmute(ctx):
