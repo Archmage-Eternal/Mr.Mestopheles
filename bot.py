@@ -11,6 +11,13 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 bot = commands.Bot(command_prefix='!')
 # Managerial Functions.
 
+@client.event
+async def on_member_join(member):
+    channel = client.get_channel(ID) # Where ID is your welcome channel's ID
+    # Send welcome message to channel
+    await channel.send(f'Welcome {member}!, Enjoy your stay at {member.guild.name}!') 
+
+
 @bot.command(name='silence', help='Mutes everyone in the current voice channel.')
 async def vcmute(ctx):
     '''
