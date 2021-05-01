@@ -9,13 +9,19 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 # Set prefix for bot commands.
 bot = commands.Bot(command_prefix='!')
-# Managerial Functions.
+# Activating member intents for on_member_join() functionality.
+intents = discord.Intents.default()
+intents.members = True
+#Event listners
+@bot.event
+async def on_ready():
+    print(f'Ready, working on {bot.guild.name}')
 
-@client.event
+@bot.event
 async def on_member_join(member):
-    channel = client.get_channel(ID) # Where ID is your welcome channel's ID
-    # Send welcome message to channel
-    await channel.send(f'Welcome {member}!, Enjoy your stay at {member.guild.name}!') 
+    channel = discord.utils.get(member.guild.text_channels, name="welcome")
+    await channel.send(f"Hello {member}, welcome")
+# Managerial Functions.
 
 
 @bot.command(name='silence', help='Mutes everyone in the current voice channel.')
