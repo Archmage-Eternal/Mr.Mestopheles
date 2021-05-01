@@ -4,15 +4,40 @@ import random
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+import sys
+import signal
 
+from db_manage import close_all_db_connections, open_db_connection, open_all_db_connections, guild_dbs
+
+### Setup
 # Load environment variables.
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 # Set prefix for bot commands.
 bot = commands.Bot(command_prefix='!')
-# Managerial Functions.
+
+# To close all sqlite3 connections on ctrl+c and also exit
+def signal_handler():
+    close_all_db_connections()
+    exit(0)
+
+# Create the database/ folder to store all .db files
+os.makedirs('databases', exist_ok=True)
+
+### For setting up databases
+@bot.event
+async def on_ready():
+    open_all_db_connections(bot.guilds)
+    print(guild_dbs)
+    bot.loop.add_signal_handler(signal.SIGINT, signal_handler)
+
+@bot.event
+async def on_guild_join(guild):
+    # create a new .db file on joining a new guild (should we delete if bot is rejoining?)
+    open_db_connection(guild.id)
 
 
+### Managerial Functions.
 @bot.command(name='silence', help='Mutes everyone in the current voice channel.')
 async def vcmute(ctx):
     '''
