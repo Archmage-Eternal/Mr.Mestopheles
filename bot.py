@@ -77,13 +77,17 @@ async def nine_nine(ctx):
 
 
 @bot.command(name='8ball', help='A magic 8 ball.')
-async def eight_ball(ctx):
+async def eight_ball(ctx, question = ''):
     '''
     A function to simulate a Magic 8 ball. It has 10 positive, 5 negative and 5 neutral.
 
     Args:
         ctx (Discord): Gives the current context of the channel from which the function is called.
     '''
+    if question == '':
+        await ctx.send('Enter a question dumbass.')
+        return None
+
     eight_ball_responses = ['It is certain.', 'It is decidedly so.', 'Without a doubt.',
                             'Yes – definitely.', 'You may rely on it.', 'As I see it, yes.',
                             'Most likely.', 'Outlook good.', 'Yes.', 'Signs point to yes.',
@@ -92,4 +96,6 @@ async def eight_ball(ctx):
                             'My reply is no.', 'My sources say no.', 'Outlook not so good.',
                             'Very doubtful.']
     await ctx.send(random.choice(eight_ball_responses))
+    if question[-1] != '?':
+        await ctx.send('Also, you forgot the question mark, genius.')
 bot.run(TOKEN)
