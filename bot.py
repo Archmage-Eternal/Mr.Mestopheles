@@ -1,4 +1,3 @@
-# bot.py
 import os
 import random
 import discord
@@ -7,16 +6,30 @@ from dotenv import load_dotenv
 import sys
 import signal
 
-from db_manage import close_all_db_connections, open_db_connection, open_all_db_connections, guild_dbs
+from db_manage import (
+        open_db_connection,
+        open_all_db_connections,
+        create_and_populate_default_table,
+        close_all_db_connections,
+        db_add_member,
+        db_remove_member,
+        delete_db,
+        guild_dbs,
+        TABLE,
+    )
 
 ### Setup
 # Load environment variables.
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-# Set prefix for bot commands.
-bot = commands.Bot(command_prefix='!')
+
+# Set intent and prefix for bot commands.
+intents = discord.Intents().all()
+intents.members = True
+bot = commands.Bot(command_prefix='!', intents=intents)
 
 # To close all sqlite3 connections on ctrl+c and also exit
+# works only for linux platform
 def signal_handler():
     close_all_db_connections()
     exit(0)
@@ -24,17 +37,32 @@ def signal_handler():
 # Create the database/ folder to store all .db files
 os.makedirs('databases', exist_ok=True)
 
-### For setting up databases
+### For setting up databases and managing them on events
 @bot.event
 async def on_ready():
     open_all_db_connections(bot.guilds)
-    print(guild_dbs)
-    bot.loop.add_signal_handler(signal.SIGINT, signal_handler)
+    if sys.platform == 'linux':
+        bot.loop.add_signal_handler(signal.SIGINT, signal_handler)
 
 @bot.event
 async def on_guild_join(guild):
     # create a new .db file on joining a new guild (should we delete if bot is rejoining?)
-    open_db_connection(guild.id)
+    open_db_connection(guild)
+    create_and_populate_default_table(guild)
+
+@bot.event
+async def on_member_join(member):
+    db_add_member(member)
+
+@bot.event
+async def on_member_remove(member):
+    print(member.id, bot.user.id)
+    # if removed member is the bot itself, then delete guild
+    # database
+    if member.id == bot.user.id:
+        delete_db(member.guild)
+    else:
+        db_remove_member(member)
 
 
 ### Managerial Functions.
