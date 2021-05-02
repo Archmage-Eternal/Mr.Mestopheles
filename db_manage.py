@@ -91,7 +91,7 @@ def get_bank_money(member):
 # returns a list of tuples. Each tuple being one record/row.
 def get_leaderboard(guild):
     guild_id = guild.id
-    conn = guild_dbs[guild_dbs]
+    conn = guild_dbs[guild_id]
 
     cur = conn.execute(f'''select * from {TABLE}
     order by (wallet + bank_balance) desc;''');

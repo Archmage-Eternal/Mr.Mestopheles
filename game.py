@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import random
-
+from db_manage import get_wallet_money, update_wallet_money, get_bank_money, deposit_bank_money, withdraw_bank_money, get_leaderboard
 def win_check(bet_amount, bet_type):
     roulette_table = {'00':'g',0:'g',1:'r',2:'b',3:'r',4:'b',5:'r',6:'b',7:'r',
             8:'b',9:'r',10:'b',11:'b',12:'r',13:'b',14:'r',15:'b',16:'r',
@@ -43,37 +43,3 @@ def win_check(bet_amount, bet_type):
         return result, 'even_odd', True 
 
     return result, '', False
-
-
-@bot.command(name='roulette', help='Allows you to bet on roulette. Takes 2 arguments, bet amount and type')
-async def roulette(ctx, bet_amount = -1, bet_type = ''):
-    bets_payout = {'dozen':2,'color':1,'even_odd':1,'column':2,'high_low':1,'single_num':35}
-
-    if bet_type == '':
-        print('You forgot to give the type of bet, genius.')
-    
-    # todo: check current walled balance. 
-    # current_wallet_balance = db get wallet command.
-    if current_wallet_balance < bet_amount:
-        print('You don\'t have that much money right now.')
-    
-    result, payout_type, win_flag =  win_check(bet_amount, bet_type) 
-    if win_flag:
-        # todo: add amount to wallet database entry.
-        print(f'The result is {result}.\nCongratulations, you have won. The payout is 1:{bets_payout[payout_type] + 1}.')
-    else:
-        # todo: remove amount from wallet database entry.
-        print(f'The result is {result}.\nSorry you lost.')
-
-
-@bot.command(name='deposit', help='Allows you to deposit money into the bank.')
-async def deposit(ctx,amount = -1):
-    pass
-
-@bot.command(name='withdraw', help='Allows you to withdraw money from the bank.')
-async def withdraw(ctx, amount = -1):
-    pass
-
-@bot.command(name='leaderboard', help='Displays the leaderboard for the server.')
-async def print_leaderboard(ctx):
-    pass

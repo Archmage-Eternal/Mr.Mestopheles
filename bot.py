@@ -5,6 +5,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import sys
 import signal
+from game import win_check
 
 from db_manage import (
         open_db_connection,
@@ -13,7 +14,7 @@ from db_manage import (
         close_all_db_connections,
         db_add_member,
         db_remove_member,
-        delete_db,
+        delete_db, get_wallet_money, update_wallet_money, get_bank_money, deposit_bank_money, withdraw_bank_money, get_leaderboard,
         guild_dbs,
         TABLE,
     )
@@ -40,6 +41,7 @@ os.makedirs('databases', exist_ok=True)
 ### For setting up databases and managing them on events
 @bot.event
 async def on_ready():
+    print('Ready')
     open_all_db_connections(bot.guilds)
     if sys.platform == 'linux':
         bot.loop.add_signal_handler(signal.SIGINT, signal_handler)
@@ -151,4 +153,63 @@ async def eight_ball(ctx, question = ''):
     await ctx.send(random.choice(eight_ball_responses))
     if question[-1] != '?':
         await ctx.send('Also, you forgot the question mark, genius.')
+
+
+
+@bot.command(name='roulette', help='Allows you to bet on roulette. Takes 2 arguments, bet amount and type')
+async def roulette(ctx, bet_amount = -1, bet_type = ''):
+    bets_payout = {'dozen':2,'color':1,'even_odd':1,'column':2,'high_low':1,'single_num':35}
+
+    if bet_type == '':
+        print('You forgot to give the type of bet, genius.')
+    
+    # todo: check current wallet balance. 
+    current_wallet_balance = get_wallet_money(ctx.author)
+    if current_wallet_balance < bet_amount:
+        await ctx.send('You don\'t have that much money right now.')
+    
+    result, payout_type, win_flag =  win_check(bet_amount, bet_type) 
+    if win_flag:
+        # todo: add amount to wallet database entry.
+        update_wallet_money(ctx.author, bet_amount * bets_payout[payout_type])
+        await ctx.send(f'The result is {result}.\nCongratulations, you have won. The payout is 1:{bets_payout[payout_type] + 1}.')
+    else:
+        # todo: remove amount from wallet database entry.
+        print(ctx.author, ctx.guild)
+        update_wallet_money(ctx.author, -bet_amount)
+        await ctx.send(f'The result is {result}.\nSorry you lost.')
+
+
+@bot.command(name='deposit', help='Allows you to deposit money into the bank.')
+async def deposit(ctx,amount = -1):
+    if amount == -1:
+        await ctx.send('Please enter the amount you want to deposit, or type all to deposit all the money.')
+    deposit_bank_money(ctx.author, amount)
+    wallet_balance = get_wallet_money(ctx.author)
+    bank_balance = get_bank_money(ctx.author)
+    await ctx.send(f'The transfer has been completed.\nWallet Balance: {wallet_balance}\nBank Balance: {bank_balance}')
+
+    
+
+
+@bot.command(name='withdraw', help='Allows you to withdraw money from the bank.')
+async def withdraw(ctx, amount = -1):
+    if amount == -1:
+        await ctx.send('Please enter the amount you want to withdraw, or type all to withdraw all the money.')
+    withdraw_bank_money(ctx.author, amount)
+    wallet_balance = get_wallet_money(ctx.author)
+    bank_balance = get_bank_money(ctx.author)
+    await ctx.send(f'The transfer has been completed.\nWallet Balance: {wallet_balance}\nBank Balance: {bank_balance}')
+    
+
+@bot.command(name='leaderboard', help='Displays the leaderboard for the server.')
+async def print_leaderboard(ctx):
+    members = get_leaderboard(ctx.guild)
+    output = 'Leaderboard\n'
+    for index, row in enumerate(members):
+        member = bot.get_user(row[0])
+        output += f'{index+1}. {member.name}\t{row[1] + row[2]}\n'
+    await ctx.send('```\n' + output + '\n```')
+
+
 bot.run(TOKEN)
