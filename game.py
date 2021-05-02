@@ -10,11 +10,11 @@ async def roulette(ctx, bet_amount: int, bet_type:str):
             26:'b',27:'r',28:'b',29:'b',30:'r',31:'b',32:'r',33:'b',34:'r',
             35:'b',36:'r'}
 
-    bet_types = {'first_dozen':range(1,13),'second_dozen':range(13,25),'third_dozen':range(25,37),
+    bet_types = {'first dozen':range(1,13),'second dozen':range(13,25),'third dozen':range(25,37),
         'red':'r','black':'b','even':'even','odd':'odd',
-        'first_column':[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34],
-        'second_column':[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35],
-        'third_column':[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36],
+        'first column':[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34],
+        'second column':[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35],
+        'third column':[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36],
         'high':range(19,37),'low':range(1,19),
         'single_num':list(roulette_table.keys())}
 
@@ -22,22 +22,33 @@ async def roulette(ctx, bet_amount: int, bet_type:str):
     #dbms operations
     # ! Not implemented.
 
-    result = random.randint(1, 36)
+    result = random.choice(list(roulette_table.keys()))
+    colour = roulette_table[result]
 
     # ! Incomplete.
-    if result == space:
-        pass
-    elif space == :
-        pass
-    elif space == :
-        pass
-    elif space == :
-        pass
-    elif result % 2 != 0 and space.lower() == 'odd':
-        pass
-    elif result % 2 == 0 and space.lower() == 'even':
-        pass
-    elif result in color_red and space.lower() == 'red':
-        pass
-    elif result in color_black and space.lower() == 'black':
-        pass
+    if bet_type.isnumeric():
+        if int(bet_type) == result:
+            print(f"payout is {bets_payout['single_num']} for a single number.")
+        else:
+            print(f'The result is {result}. Sorry you lose.')
+    elif 'column' in bet_type:
+        if result in bet_types[bet_type]:
+            print(f"payout is {bets_payout['column']} for {bet_type}.")
+    elif 'dozen' in bet_type:
+        if result in bet_types[bet_type]:
+            print(f"payout is {bets_payout['dozen']} for {bet_type}.")
+    elif bet_type in 'high low':
+        if result in bet_types[bet_type]:
+            print(f"payout is {bets_payout['high_low']} for {bet_type}.")
+    elif bet_type in 'red black':
+        if bet_types[bet_type] == roulette_table[result]:
+            print(f"payout is {bets_payout['color']} for {bet_type}.")
+    elif result % 2 == 0 and bet_type == 'even':
+        print(f"payout is {bets_payout['even_odd']} for {bet_type}.")
+    elif result % 2 != 0 and bet_type == 'odd':
+        print(f"payout is {bets_payout['even_odd']} for {bet_type}.")
+    else:
+        print(f'The result is {result}. Sorry you lose.')
+    
+    
+    print(str(result), bet_type)
