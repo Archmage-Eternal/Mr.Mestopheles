@@ -11,6 +11,8 @@ from db_manage import (
         open_db_connection,
         open_all_db_connections,
         create_and_populate_default_table,
+        create_table_trigger,
+        create_trigger,
         close_all_db_connections,
         db_add_member,
         db_remove_member,
@@ -51,6 +53,8 @@ async def on_guild_join(guild):
     # create a new .db file on joining a new guild (should we delete if bot is rejoining?)
     open_db_connection(guild)
     create_and_populate_default_table(guild)
+    create_table_trigger(guild)
+    create_trigger(guild)
 
 @bot.event
 async def on_member_join(member):

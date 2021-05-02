@@ -24,6 +24,25 @@ def close_all_db_connections():
         guild_conn.close()
         print("sqlite3 connection closed for guild id", id)
 
+def create_table_trigger(guild):
+    guild_id = guild.id
+    conn = guild_dbs[guild_id]
+    conn.execute(f'''
+    CREATE TABLE AUDIT(
+                    ENTRY_DATE TEXT NOT NULL
+                    );''')
+
+def create_trigger(guild):
+    guild_id = guild.id
+    conn = guild_dbs[guild_id]
+    conn.execute(f'''
+    CREATE TRIGGER audit_log AFTER INSERT ON {TABLE}
+                     BEGIN
+                     INSERT INTO AUDIT(ENTRY_DATE) VALUES (datetime('now'));
+                     END;''')
+    conn.commit()
+
+
 # creates a new table and populates the default value of each field for every
 # member in guild
 def create_and_populate_default_table(guild):
