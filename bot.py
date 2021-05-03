@@ -166,11 +166,13 @@ async def roulette(ctx, bet_amount = -1, bet_type = ''):
 
     if bet_type == '':
         print('You forgot to give the type of bet, genius.')
-    
+        return 
+        
     # todo: check current wallet balance. 
     current_wallet_balance = get_wallet_money(ctx.author)
     if current_wallet_balance < bet_amount:
         await ctx.send('You don\'t have that much money right now.')
+        return
     
     result, payout_type, win_flag =  win_check(bet_amount, bet_type) 
     if win_flag:
@@ -214,6 +216,13 @@ async def print_leaderboard(ctx):
         member = bot.get_user(row[0])
         output += f'{index+1}. {member.name}\t{row[1] + row[2]}\n'
     await ctx.send('```\n' + output + '\n```')
+
+
+@bot.command(name='money', help='Displays the wallet and bank money for the user.')
+async def print_money(ctx):
+    bank = str(get_bank_money(ctx.author))
+    wallet = str(get_wallet_money(ctx.author))
+    await ctx.send('```\nBank : ' + bank + '\nWallet : ' + wallet + '\n```')
 
 
 bot.run(TOKEN)

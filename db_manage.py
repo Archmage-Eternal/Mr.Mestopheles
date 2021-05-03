@@ -29,6 +29,7 @@ def create_table_trigger(guild):
     conn = guild_dbs[guild_id]
     conn.execute(f'''
     CREATE TABLE AUDIT(
+                    audit_id int,
                     ENTRY_DATE TEXT NOT NULL
                     );''')
 
@@ -38,7 +39,7 @@ def create_trigger(guild):
     conn.execute(f'''
     CREATE TRIGGER audit_log AFTER INSERT ON {TABLE}
                      BEGIN
-                     INSERT INTO AUDIT(ENTRY_DATE) VALUES (datetime('now'));
+                     INSERT INTO AUDIT VALUES (new.id, datetime('now', 'localtime'));
                      END;''')
     conn.commit()
 
